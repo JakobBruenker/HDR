@@ -9,11 +9,12 @@ OBJ_DIR = obj
 BIN_DIR = bin
 EXE = $(BIN_DIR)/hdr
 
-all: $(EXE)
-	$(EXE)
+all: run
 
 run: $(EXE)
 	$(EXE)
+
+build: $(EXE)
 
 $(EXE): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $(EXE) $(OBJS) $(LDLIBS)

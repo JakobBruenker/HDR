@@ -3,7 +3,7 @@
 int main() {
   HDR hdr = HDR();
   hdr.estimateXs();
-  for (unsigned int i = 0; i < 5; i++) {
+  for (unsigned int i = 0; i < 1; i++) { // XXX increase iterations
     hdr.estimateBigIs();
     hdr.estimateXs();
   }
