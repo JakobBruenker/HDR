@@ -9,17 +9,10 @@ using namespace std;
 int main() {
   HDR hdr = HDR();
   hdr.estimateXs();
-  hdr.estimateBigIs();
-  hdr.estimateXs();
-  hdr.estimateBigIs();
-  hdr.estimateXs();
-  hdr.estimateBigIs();
-  hdr.estimateXs();
-  hdr.estimateBigIs();
-  hdr.estimateXs();
-  hdr.estimateBigIs();
-  hdr.estimateXs();
-  hdr.writeEXRFile();
+  for (unsigned int i = 0; i < 5; i++) {
+    hdr.estimateBigIs();
+    hdr.estimateXs();
+  }
   CImgDisplay graph_display = hdr.drawGraph();
   CImgDisplay xs_display = hdr.showXs();
   CImgDisplay exp_display = hdr.showExposure(0.05);

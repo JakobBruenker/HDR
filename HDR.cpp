@@ -67,7 +67,6 @@ void HDR::loadImages() {
   local::sort(times, filenames, 0, numImages - 1);
 
   for (uint i = 0; i < numImages; i++) {
-    printf("%s\n", filenames[i].c_str());
     loadImage(i, filenames[i]);
   }
 
