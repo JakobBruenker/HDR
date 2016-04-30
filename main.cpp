@@ -19,6 +19,7 @@ int main() {
   hdr.estimateXs();
   hdr.estimateBigIs();
   hdr.estimateXs();
+  hdr.writeEXRFile();
   CImgDisplay graph_display = hdr.drawGraph();
   CImgDisplay xs_display = hdr.showXs();
   CImgDisplay exp_display = hdr.showExposure(0.05);

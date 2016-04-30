@@ -31,6 +31,7 @@ bin/
 # Pictures
 *.ppm
 *.hdrgen
+*.exr
 
 # Config files
 *.cfg
