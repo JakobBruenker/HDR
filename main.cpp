@@ -11,6 +11,14 @@ int main() {
   hdr.estimateXs();
   hdr.estimateBigIs();
   hdr.estimateXs();
+  hdr.estimateBigIs();
+  hdr.estimateXs();
+  hdr.estimateBigIs();
+  hdr.estimateXs();
+  hdr.estimateBigIs();
+  hdr.estimateXs();
+  hdr.estimateBigIs();
+  hdr.estimateXs();
   CImgDisplay graph_display = hdr.drawGraph();
   CImgDisplay xs_display = hdr.showXs();
   CImgDisplay exp_display = hdr.showExposure(0.05);

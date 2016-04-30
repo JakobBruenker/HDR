@@ -16,12 +16,60 @@ void HDR::loadImages() {
   string directory = hdrgenPath.substr(0, hdrgenPath.rfind("/"));
   string line;
   uint numLines = 0;
+  string filenames[numImages];
   while (getline(hdrgen, line)) {
     uint spacePos = line.find(string(" "));
     times[numLines] = atof(line.substr(spacePos + 1, line.length()).c_str());
-    loadImage(numLines, directory + "/" + line.substr(0, spacePos));
+    filenames[numLines] = directory + "/" + line.substr(0, spacePos);
     numLines++;
   }
+
+  struct local {
+    // sort assumes that the arrays contain more than one element, and then
+    // sorts both according to the first one from high to low
+    static void sort(double* ts, string* fns, uint start, uint end) {
+      // pick middle element as pivot, to avoid bad performance on already
+      // sorted arrays, which should happen quite often
+      uint k = (start + end) / 2;
+      double pivot = ts[k];
+      uint first = start;
+      uint last = end;
+      bool progress = false;
+      do {
+        while (ts[first] >= ts[k] && first < k) {
+          first++;
+        }
+        while (ts[last] <= ts[k] && k < last) {
+          last--;
+        }
+        double dswapper = ts[first];
+        string sswapper = fns[first];
+        ts[first] = ts[last];
+        fns[first] = fns[last];
+        ts[last] = dswapper;
+        fns[last] = sswapper;
+        if (k == last) {
+          k = first;
+        } else if (k == first) {
+          k = last;
+        }
+      } while (first < last);
+      if (start < k) {
+        sort(ts, fns, start, k);
+      }
+      if (k + 1 < end) {
+        sort(ts, fns, k + 1, end);
+      }
+    }
+  };
+  // sort images; this will make it possible to shave off a bit of time later
+  local::sort(times, filenames, 0, numImages - 1);
+
+  for (uint i = 0; i < numImages; i++) {
+    printf("%s\n", filenames[i].c_str());
+    loadImage(i, filenames[i]);
+  }
+
   hdrgen.close();
 }
 
@@ -92,7 +140,7 @@ double HDR::estimateX(uint x, uint y, uint dim) {
       // pixels in brighter images2 would also be zero, so we can just break the
       // whole loop
       if (pixval >= 254) {
-        continue; // XXX replace with break when sorted
+        break;
       } else {
         double wij = weights[pixval];
         numerator += (wij * bigI[dim][pixval]) / times[i];
@@ -166,6 +214,7 @@ CImgDisplay HDR::showExposure(double time) {
     }
   }
 
+  // TODO: add exposure time to string
   return CImgDisplay(result, "Image with exposure time of ");
 }
 
