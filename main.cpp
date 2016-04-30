@@ -2,6 +2,7 @@
 #include <limits>
 #include <fstream>
 #include <iostream>
+#include "HDR.h"
 using namespace cimg_library;
 using namespace std;
 
@@ -24,7 +25,7 @@ using namespace std;
 //
 //
 
-CImg<unsigned char> graph(500, 255, 1, 3, 0);
+/*CImg<unsigned char> graph(500, 255, 1, 3, 0);
 CImg<unsigned char> result;
 CImg<double> xs;
 unsigned int cardsR[256];
@@ -228,7 +229,8 @@ void loadImages(CImg<unsigned char>* images, double* times) {
   hdrgen.close();
 }
 
-int main() {
+int main2() {
+  HDR hdr = HDR();
   unsigned int numImages = initialize();
   double* times = new double[numImages];
   CImg<unsigned char>* images = new CImg<unsigned char>[numImages];
@@ -264,20 +266,20 @@ int main() {
   estimateBigIs(numImages, images, times);
   normBigIs();
   estimateXs(numImages, images, times);
-  estimateBigIs(numImages, images, times);
-  normBigIs();
-  estimateXs(numImages, images, times);
-  estimateBigIs(numImages, images, times);
-  normBigIs();
-  estimateXs(numImages, images, times);
-  estimateBigIs(numImages, images, times);
-  normBigIs();
-  estimateXs(numImages, images, times);
-  estimateBigIs(numImages, images, times);
-  normBigIs();
-  estimateXs(numImages, images, times);
-  estimateBigIs(numImages, images, times);
-  normBigIs();
+  //estimateBigIs(numImages, images, times);
+  //normBigIs();
+  //estimateXs(numImages, images, times);
+  //estimateBigIs(numImages, images, times);
+  //normBigIs();
+  //estimateXs(numImages, images, times);
+  //estimateBigIs(numImages, images, times);
+  //normBigIs();
+  //estimateXs(numImages, images, times);
+  //estimateBigIs(numImages, images, times);
+  //normBigIs();
+  //estimateXs(numImages, images, times);
+  //estimateBigIs(numImages, images, times);
+  //normBigIs();
 
   double minBigI = numeric_limits<double>::max();
   double maxBigI = 0.;
@@ -300,6 +302,8 @@ int main() {
     if (bigIB[i] > maxBigI) {
       maxBigI = bigIB[i];
     }
+  }
+  for (unsigned int i = 0; i < 254; i++) {
     unsigned char red[] = {255, 0, 0};
     unsigned char green[] = {0, 255, 0};
     unsigned char blue[] = {50, 50, 255};
@@ -320,4 +324,17 @@ int main() {
   delete[] images;
   return 0;
 
+}*/
+
+int main() {
+  HDR hdr = HDR();
+  hdr.estimateXs();
+  hdr.estimateBigIs();
+  hdr.estimateXs();
+  CImgDisplay graph_display = hdr.drawGraph();
+  CImgDisplay xs_display = hdr.showXs();
+  while (!graph_display.is_closed() && !xs_display.is_closed()) {
+    graph_display.wait();
+  }
+  return 0;
 }
