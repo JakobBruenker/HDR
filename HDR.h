@@ -8,14 +8,11 @@ class HDR {
   cimg_library::CImg<double>* xs;
   double* times;
   unsigned int numImages;
-  unsigned int cardsR[256];
-  unsigned int cardsG[256];
-  unsigned int cardsB[256];
-  double bigIR[256];
-  double bigIG[256];
-  double bigIB[256];
+  unsigned int cards[3][256];
+  double bigI[3][256];
   double weights[256];
 
+  std::string getHdrgen();
   void loadImages();
   void initCards();
   void initBigIs();
@@ -23,7 +20,7 @@ class HDR {
   void initWeights();
   void loadImage(unsigned int imageNum, std::string);
   double estimateX(unsigned int x, unsigned int y, unsigned int dim);
-  std::string getHdrgen();
+  unsigned char f(double light, unsigned int color);
 
 public:
   HDR();
@@ -33,6 +30,7 @@ public:
   void estimateBigIs();
   cimg_library::CImgDisplay drawGraph();
   cimg_library::CImgDisplay showXs();
+  cimg_library::CImgDisplay showExposure(double time);
 };
 
 #endif /* HDR_H */

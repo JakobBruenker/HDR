@@ -29,9 +29,9 @@ void HDR::initCards() {
   for (uint i = 0; i < numImages; i++) {
     for (uint x = 0; x < images[0].width(); x++) {
       for (uint y = 0; y < images[0].height(); y++) {
-        cardsR[images[i](x,y,0,0)]++;
-        cardsG[images[i](x,y,0,1)]++;
-        cardsB[images[i](x,y,0,2)]++;
+        cards[0][images[i](x,y,0,0)]++;
+        cards[1][images[i](x,y,0,1)]++;
+        cards[2][images[i](x,y,0,2)]++;
       }
     }
   }
@@ -39,20 +39,20 @@ void HDR::initCards() {
 
 void HDR::initBigIs() {
   for (uint i = 0; i < 255; i++) {
-    bigIR[i] = i / 128.;
-    bigIG[i] = i / 128.;
-    bigIB[i] = i / 128.;
+    bigI[0][i] = i / 128.;
+    bigI[1][i] = i / 128.;
+    bigI[2][i] = i / 128.;
   }
 }
 
 void HDR::normBigIs() {
-  double bigIR_128 = bigIR[128];
-  double bigIG_128 = bigIG[128];
-  double bigIB_128 = bigIB[128];
+  double bigIR_128 = bigI[0][128];
+  double bigIG_128 = bigI[1][128];
+  double bigIB_128 = bigI[2][128];
   for (uint i = 0; i < 255; i++) {
-    bigIR[i] = bigIR[i] / bigIR_128;
-    bigIG[i] = bigIG[i] / bigIG_128;
-    bigIB[i] = bigIB[i] / bigIB_128;
+    bigI[0][i] = bigI[0][i] / bigIR_128;
+    bigI[1][i] = bigI[1][i] / bigIG_128;
+    bigI[2][i] = bigI[2][i] / bigIB_128;
   }
 }
 
@@ -61,7 +61,7 @@ void HDR::normBigIs() {
 void HDR::initWeights() {
   // the weights for extreme pixel values are set to zero, because otherwise,
   // overexposed and underexposed areas are taken into account wrongly
-  weights[0] = weights[253] = weights[254] = 0; // TODO make sure this works
+  weights[0] = weights[253] = weights[254] = 0;
   for (uint i = 1; i < 254; i++) {
     weights[i] =
       exp((-4 * (i - 127.5) * (i - 127.5)) / (127.5 * 127.5));
@@ -95,14 +95,7 @@ double HDR::estimateX(uint x, uint y, uint dim) {
         continue; // XXX replace with break when sorted
       } else {
         double wij = weights[pixval];
-        double bigI;
-        switch (dim) {
-          case 0: bigI = bigIR[pixval]; break;
-          case 1: bigI = bigIG[pixval]; break;
-          case 2: bigI = bigIB[pixval]; break;
-          default: bigI = bigIR[pixval];
-        }
-        numerator += (wij * bigI) / times[i];
+        numerator += (wij * bigI[dim][pixval]) / times[i];
         denominator += wij / (times[i] * times[i]);
       }
     }
@@ -117,7 +110,7 @@ void HDR::estimateXs() {
       double estG = estimateX(x, y, 1);
       double estB = estimateX(x, y, 2);
       double xval[] = {estR, estG, estB};
-      (*xs).draw_point(x,y,xval);
+      xs->draw_point(x,y,xval);
     }
   }
 }
@@ -142,12 +135,38 @@ void HDR::estimateBigIs() {
     }
   }
   for (uint i = 0; i < 255; i++) {
-    bigIR[i] = sumsR[i] / cardsR[i];
-    bigIG[i] = sumsG[i] / cardsG[i];
-    bigIB[i] = sumsB[i] / cardsB[i];
+    bigI[0][i] = sumsR[i] / cards[0][i];
+    bigI[1][i] = sumsG[i] / cards[1][i];
+    bigI[2][i] = sumsB[i] / cards[2][i];
   }
   // normalize, so I_128 is 1
   normBigIs();
+}
+
+uchar HDR::f(double light, uint color) {
+  if (light <= bigI[color][0]) {
+    return 0;
+  }
+  for (uint i = 1; i < 255; i++) {
+    if (light <= bigI[color][i]) {
+      return i;
+    }
+  }
+  return 255;
+}
+
+CImgDisplay HDR::showExposure(double time) {
+  CImg<uchar> result(xs->width(), xs->height(), 1, 3, 0);
+  for (uint x = 0; x < xs->width(); x++) {
+    for (uint y = 0; y < xs->height(); y++) {
+      uchar pixval[] = {f(time * (*xs)(x,y,0,0), 0),
+                        f(time * (*xs)(x,y,0,1), 1),
+                        f(time * (*xs)(x,y,0,2), 2)};
+      result.draw_point(x,y,pixval);
+    }
+  }
+
+  return CImgDisplay(result, "Image with exposure time of ");
 }
 
 CImgDisplay HDR::showXs() {
@@ -155,26 +174,17 @@ CImgDisplay HDR::showXs() {
 }
 
 CImgDisplay HDR::drawGraph() {
-  double minI = numeric_limits<double>::max();
-  double maxI = 0.;
+  // we know that I_128 is 1, so we can assume that the minimum value is at
+  // most 1 and the maximum value is at least 1
+  double minI = 1;
+  double maxI = 1;
   for (uint i = 0; i < 254; i++) {
-    if (bigIR[i] < minI) {
-      minI = bigIR[i];
-    }
-    if (bigIG[i] < minI) {
-      minI = bigIG[i];
-    }
-    if (bigIB[i] < minI) {
-      minI = bigIB[i];
-    }
-    if (bigIR[i] > maxI) {
-      maxI = bigIR[i];
-    }
-    if (bigIG[i] > maxI) {
-      maxI = bigIG[i];
-    }
-    if (bigIB[i] > maxI) {
-      maxI = bigIB[i];
+    for (uint j = 0; j < 3; j++) {
+      if (bigI[j][i] > maxI) {
+        maxI = bigI[j][i];
+      } else if (bigI[j][i] < minI) {
+        minI = bigI[j][i];
+      }
     }
   }
 
@@ -200,10 +210,10 @@ CImgDisplay HDR::drawGraph() {
   };
 
   for (uint i = 0; i < 509; i += 2) {
-    double interv = (log(maxI) - log(minI)) / 510.;
-    local::drawData(&graph, (log(bigIR[i]) - log(minI)) / interv, 255 - i, 0);
-    local::drawData(&graph, (log(bigIG[i]) - log(minI)) / interv, 255 - i, 1);
-    local::drawData(&graph, (log(bigIB[i]) - log(minI)) / interv, 255 - i, 2);
+    double den = (log(maxI) - log(minI)) / 510.;
+    local::drawData(&graph, (log(bigI[0][i/2]) - log(minI)) / den, 510 - i, 0);
+    local::drawData(&graph, (log(bigI[1][i/2]) - log(minI)) / den, 510 - i, 1);
+    local::drawData(&graph, (log(bigI[2][i/2]) - log(minI)) / den, 510 - i, 2);
   }
 
   return CImgDisplay(graph, "Response curves");
