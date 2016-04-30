@@ -2,6 +2,7 @@
 #define HDR_H
 
 #include <CImg.h>
+#include <OpenEXR/ImfRgbaFile.h>
 
 class HDR {
   cimg_library::CImg<unsigned char>* images;
@@ -21,6 +22,7 @@ class HDR {
   void loadImage(unsigned int imageNum, std::string);
   double estimateX(unsigned int x, unsigned int y, unsigned int dim);
   unsigned char f(double light, unsigned int color);
+  void getRGBA(Rgba* pixels);
 
 public:
   HDR();
@@ -28,6 +30,7 @@ public:
   void estimateXs();
   void drawResults();
   void estimateBigIs();
+  void writeEXRFile();
   cimg_library::CImgDisplay drawGraph();
   cimg_library::CImgDisplay showXs();
   cimg_library::CImgDisplay showExposure(double time);

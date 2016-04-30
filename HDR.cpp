@@ -219,6 +219,26 @@ CImgDisplay HDR::showExposure(double time) {
   return CImgDisplay(result, ss.str().c_str());
 }
 
+void getRGBA(Rgba* pixels) {
+  for (uint x = 0; x < xs->width(); x++) {
+    for (uint y = 0; y < xs->height(); y++) {
+      pixels[y*xs->width()+x] =
+        Rgba((*xs)(x,y,0,0),(*xs)(x,y,0,1),(*xs)(x,y,0,2));
+    }
+  }
+}
+
+void HDR::writeEXRFile() {
+  string hdrgenPath = getHdrgen();
+  string fname = hdrgenPath.substr(0, hdrgenPath.rfind("."));
+  RgbaOutputFile file(fname + ".exr", xs->width(), xs->height(), WRITE_RGBA);
+  Rgba* pixels = new Rgba[xs->width()*xs->height()];
+  getRGBA(pixels);
+  file.setFrameBuffer(pixels, 1, xs->width());
+  file.writePixels(xs->height());
+  delete[] pixels;
+}
+
 CImgDisplay HDR::showXs() {
   return CImgDisplay(*xs, "HDR image mapped to eight bits");
 }
