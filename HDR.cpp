@@ -9,6 +9,7 @@ typedef unsigned int uint;
 
 using namespace std;
 using namespace cimg_library;
+using namespace Imf_2_2;
 
 void HDR::loadImages() {
   string hdrgenPath = getHdrgen();
@@ -219,7 +220,7 @@ CImgDisplay HDR::showExposure(double time) {
   return CImgDisplay(result, ss.str().c_str());
 }
 
-void getRGBA(Rgba* pixels) {
+void HDR::getRGBA(Rgba* pixels) {
   for (uint x = 0; x < xs->width(); x++) {
     for (uint y = 0; y < xs->height(); y++) {
       pixels[y*xs->width()+x] =
@@ -230,8 +231,10 @@ void getRGBA(Rgba* pixels) {
 
 void HDR::writeEXRFile() {
   string hdrgenPath = getHdrgen();
-  string fname = hdrgenPath.substr(0, hdrgenPath.rfind("."));
-  RgbaOutputFile file(fname + ".exr", xs->width(), xs->height(), WRITE_RGBA);
+  ostringstream filename;
+  filename << hdrgenPath.substr(0, hdrgenPath.rfind(".")) << ".exr";
+  RgbaOutputFile
+    file(filename.str().c_str(), xs->width(), xs->height(), WRITE_RGBA);
   Rgba* pixels = new Rgba[xs->width()*xs->height()];
   getRGBA(pixels);
   file.setFrameBuffer(pixels, 1, xs->width());

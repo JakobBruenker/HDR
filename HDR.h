@@ -22,7 +22,7 @@ class HDR {
   void loadImage(unsigned int imageNum, std::string);
   double estimateX(unsigned int x, unsigned int y, unsigned int dim);
   unsigned char f(double light, unsigned int color);
-  void getRGBA(Rgba* pixels);
+  void getRGBA(Imf_2_2::Rgba* pixels);
 
 public:
   HDR();
