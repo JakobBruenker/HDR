@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <limits>
+#include <sstream>
 
 #include "HDR.h"
 
@@ -214,8 +214,9 @@ CImgDisplay HDR::showExposure(double time) {
     }
   }
 
-  // TODO: add exposure time to string
-  return CImgDisplay(result, "Image with exposure time of ");
+  ostringstream ss;
+  ss << "Image with exposure time of " << time << " seconds";
+  return CImgDisplay(result, ss.str().c_str());
 }
 
 CImgDisplay HDR::showXs() {
