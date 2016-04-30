@@ -241,8 +241,22 @@ void HDR::writeEXRFile() {
   delete[] pixels;
 }
 
-CDisplay HDR::showXs() {
-  return CDisplay(CImgDisplay(*xs, "HDR image mapped to eight bits"));
+void HDR::getLuminances(double*** buffer) {
+  for (uint x = 0; x < xs->width(); x++) {
+    for (uint y = 0; y < xs->height(); y++) {
+      for (uint color = 0; color < 3; color++) {
+        buffer[x][y][color] = (*xs)(x,y,0,color);
+      }
+    }
+  }
+}
+
+uint HDR::getWidth() {
+  return xs->width();
+}
+
+uint HDR::getHeight() {
+  return xs->height();
 }
 
 CDisplay HDR::drawGraph() {

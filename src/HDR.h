@@ -4,15 +4,7 @@
 #include <CImg.h>
 #include <OpenEXR/ImfRgbaFile.h>
 
-struct CDisplay {
-  private:
-    cimg_library::CImgDisplay display;
-
-  public:
-    CDisplay(cimg_library::CImgDisplay disp) : display(disp) {};
-    bool is_closed() { return display.is_closed(); }
-    void wait() { display.wait(); }
-};
+#include "CDisplay.h"
 
 class HDR {
   cimg_library::CImg<unsigned char>* images;
@@ -41,8 +33,11 @@ public:
   void drawResults();
   void estimateBigIs();
   void writeEXRFile();
+  // buffer is a one-dimensional array with dimensions width*height*3
+  void getLuminances(double*** buffer);
+  unsigned int getWidth();
+  unsigned int getHeight();
   CDisplay drawGraph();
-  CDisplay showXs();
   CDisplay showExposure(double time);
 };
 
