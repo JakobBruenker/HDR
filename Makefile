@@ -1,7 +1,7 @@
 RM = rm -f
 CXX = g++
 CXXFLAGS =
-LDLIBS = -L/usr/X11R6/lib -lm -lpthread -lX11 -lHalf -lIlmImf
+LDLIBS = -lpthread -lX11 -lHalf -lIlmImf
 SRCS = main.cpp HDR.cpp
 OBJS = $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
 SRC_DIR = src
@@ -10,6 +10,7 @@ BIN_DIR = bin
 EXE = $(BIN_DIR)/hdr
 
 all: $(EXE)
+	$(EXE)
 
 run: $(EXE)
 	$(EXE)

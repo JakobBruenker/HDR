@@ -4,6 +4,16 @@
 #include <CImg.h>
 #include <OpenEXR/ImfRgbaFile.h>
 
+struct CDisplay {
+  private:
+    cimg_library::CImgDisplay display;
+
+  public:
+    CDisplay(cimg_library::CImgDisplay disp) : display(disp) {};
+    bool is_closed() { return display.is_closed(); }
+    void wait() { display.wait(); }
+};
+
 class HDR {
   cimg_library::CImg<unsigned char>* images;
   cimg_library::CImg<double>* xs;
@@ -31,9 +41,9 @@ public:
   void drawResults();
   void estimateBigIs();
   void writeEXRFile();
-  cimg_library::CImgDisplay drawGraph();
-  cimg_library::CImgDisplay showXs();
-  cimg_library::CImgDisplay showExposure(double time);
+  CDisplay drawGraph();
+  CDisplay showXs();
+  CDisplay showExposure(double time);
 };
 
 #endif /* HDR_H */

@@ -203,7 +203,7 @@ uchar HDR::f(double light, uint color) {
   return 255;
 }
 
-CImgDisplay HDR::showExposure(double time) {
+CDisplay HDR::showExposure(double time) {
   CImg<uchar> result(xs->width(), xs->height(), 1, 3, 0);
   for (uint x = 0; x < xs->width(); x++) {
     for (uint y = 0; y < xs->height(); y++) {
@@ -216,7 +216,7 @@ CImgDisplay HDR::showExposure(double time) {
 
   ostringstream ss;
   ss << "Image with exposure time of " << time << " seconds";
-  return CImgDisplay(result, ss.str().c_str());
+  return CDisplay(CImgDisplay(result, ss.str().c_str()));
 }
 
 void HDR::getRGBA(Rgba* pixels) {
@@ -241,11 +241,11 @@ void HDR::writeEXRFile() {
   delete[] pixels;
 }
 
-CImgDisplay HDR::showXs() {
-  return CImgDisplay(*xs, "HDR image mapped to eight bits");
+CDisplay HDR::showXs() {
+  return CDisplay(CImgDisplay(*xs, "HDR image mapped to eight bits"));
 }
 
-CImgDisplay HDR::drawGraph() {
+CDisplay HDR::drawGraph() {
   // we know that I_128 is 1, so we can assume that the minimum value is at
   // most 1 and the maximum value is at least 1
   double minI = 1;
@@ -288,7 +288,7 @@ CImgDisplay HDR::drawGraph() {
     local::drawData(&graph, (log(bigI[2][i/2]) - log(minI)) / den, 510 - i, 2);
   }
 
-  return CImgDisplay(graph, "Response curves");
+  return CDisplay(CImgDisplay(graph, "Response curves"));
 }
 
 HDR::HDR() {
