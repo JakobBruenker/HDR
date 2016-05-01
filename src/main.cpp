@@ -4,11 +4,11 @@
 int main() {
   HDR hdr = HDR();
   hdr.estimateXs();
-  hdr.maxOverexposed();
   for (unsigned int i = 0; i < 1; i++) { // XXX add iterations
     hdr.estimateBigIs();
-   // hdr.estimateXs();
+    hdr.estimateXs();
   }
+  hdr.maxOverexposed();
   double* buffer = new double[hdr.getWidth()*hdr.getHeight()*3];
   hdr.getLuminances(buffer);
   Tonemapper tm = Tonemapper(hdr.getWidth(), hdr.getHeight(), buffer);
