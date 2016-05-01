@@ -48,14 +48,6 @@ double correctGamma(double input) {
   }
 }
 
-// increases the saturation of a pixel
-void incSat(double *p, double factor) {
-  double max = std::max(std::max(p[0], p[1]), p[2]);
-  p[0] = factor * (p[0] * p[0] / max) + (1 - factor) * p[0];
-  p[1] = factor * (p[1] * p[1] / max) + (1 - factor) * p[1];
-  p[2] = factor * (p[2] * p[2] / max) + (1 - factor) * p[2];
-}
-
 CDisplay Tonemapper::showImage() {
   // convert RGB image to CIE XYZ and get max luminance
   double lwmax = 0;
@@ -84,7 +76,6 @@ CDisplay Tonemapper::showImage() {
           log(lwmax + 1) * log(2+8*pow(lw/lwmax,log(1.15)/log(0.5))));
       }
       xyz2rgb(&pixels[y*imWidth*3+x*3]);
-      incSat(&pixels[y*imWidth*3+x*3], 0.2);
       double pixel[3] = {0.0};
       for (uint color = 0; color < 3; color++) {
         pixel[color] = correctGamma(pixels[y*imWidth*3+x*3+color]);
