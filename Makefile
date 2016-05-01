@@ -1,6 +1,6 @@
 RM = rm -f
 CXX = g++
-CXXFLAGS = -g
+CXXFLAGS = -Wall
 LDLIBS = -lpthread -lX11 -lHalf -lIlmImf
 SRCS = main.cpp HDR.cpp Tonemapper.cpp CDisplay.cpp
 OBJS = $(SRCS:%.cpp=$(OBJ_DIR)/%.o)

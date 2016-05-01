@@ -34,6 +34,7 @@ public:
   void estimateBigIs();
   void maxOverexposed();
   void writeEXRFile();
+  void writeResponse();
   // buffer is a one-dimensional array with dimensions width*height*3
   void getLuminances(double* buffer);
   unsigned int getWidth();
