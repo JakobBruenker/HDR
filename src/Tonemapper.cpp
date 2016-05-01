@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <CImg.h>
 
 #include "Tonemapper.h"
@@ -38,9 +39,6 @@ void xyz2rgb(double* p) {
   p[2] = b;
 }
 
-// converts pixel to HSV colorspace
-//double
-
 // assumes input is normalized to [0,1]
 double correctGamma(double input) {
   if (input <= 0.018) {
@@ -48,6 +46,14 @@ double correctGamma(double input) {
   } else {
     return 1.099 * pow(input, 0.41) - 0.99;
   }
+}
+
+// increases the saturation of a pixel
+void incSat(double *p, double factor) {
+  double max = std::max(std::max(p[0], p[1]), p[2]);
+  p[0] = factor * (p[0] * p[0] / max) + (1 - factor) * p[0];
+  p[1] = factor * (p[1] * p[1] / max) + (1 - factor) * p[1];
+  p[2] = factor * (p[2] * p[2] / max) + (1 - factor) * p[2];
 }
 
 CDisplay Tonemapper::showImage() {
@@ -65,6 +71,7 @@ CDisplay Tonemapper::showImage() {
   // calculate tonemapped luminance for each subpixel
   // normalize subpixels to [0,1]
   // convert back to RGB
+  // increase saturation, because this process gets rid of some
   // apply gamma correction
   // draw the pixels on an image
   CImg<double> image = CImg<double>(imWidth, imHeight, 1, 3, 0);
@@ -77,6 +84,7 @@ CDisplay Tonemapper::showImage() {
           log(lwmax + 1) * log(2+8*pow(lw/lwmax,log(1.15)/log(0.5))));
       }
       xyz2rgb(&pixels[y*imWidth*3+x*3]);
+      incSat(&pixels[y*imWidth*3+x*3], 0.2);
       double pixel[3] = {0.0};
       for (uint color = 0; color < 3; color++) {
         pixel[color] = correctGamma(pixels[y*imWidth*3+x*3+color]);
