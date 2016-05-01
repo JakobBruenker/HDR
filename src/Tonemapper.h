@@ -6,9 +6,9 @@
 #include "CDisplay.h"
 
 class Tonemapper {
-  double* pixels;
   unsigned int imWidth;
   unsigned int imHeight;
+  double* pixels;
 
 public:
   CDisplay showImage();

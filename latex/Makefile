@@ -1,6 +1,6 @@
-PDF_DIR = ../pdf
+SRCS = results.tex abstract.tex introduction.tex hdr.tex openexr.tex tonemapping.tex documentation.tex bibliography.tex
 
-all: $(PDF_DIR)/results.pdf
+all: results.pdf
 
-$(PDF_DIR)/results.pdf:
-	pdflatex results.tex -o $(PDF_DIR)/results.pdf
+results.pdf: $(SRCS)
+	pdflatex results.tex

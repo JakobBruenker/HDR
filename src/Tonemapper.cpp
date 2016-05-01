@@ -63,7 +63,6 @@ CDisplay Tonemapper::showImage() {
   // calculate tonemapped luminance for each subpixel
   // normalize subpixels to [0,1]
   // convert back to RGB
-  // increase saturation, because this process gets rid of some
   // apply gamma correction
   // draw the pixels on an image
   CImg<double> image = CImg<double>(imWidth, imHeight, 1, 3, 0);
