@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -124,6 +125,10 @@ void HDR::initWeights() {
 string HDR::getHdrgen() {
   string line;
   ifstream config("config.cfg");
+  if (!config) {
+    cout << "FATAL: Config file ./config.cfg could not be loaded." << endl;
+    exit(EXIT_FAILURE);
+  }
   getline(config, line);
   config.close();
   return line;
@@ -153,7 +158,7 @@ double HDR::estimateX(uint x, uint y, uint dim) {
       }
     }
   }
-  return numerator / denominator;
+  return denominator == 0 ? 0 : numerator / denominator;
 }
 
 void HDR::estimateXs() {
@@ -206,34 +211,6 @@ void HDR::maxOverexposed() {
   }
 }
 
-//void HDR::estimateBigIs() {
-//  double sumsR[256] = {0.};
-//  double sumsG[256] = {0.};
-//  double sumsB[256] = {0.};
-//  uchar numerator;
-//  for (uint i = 0; i < numImages; i++) {
-//    for (uint x = 0; x < images[0].width(); x++) {
-//      for (uint y = 0; y < images[0].height(); y++) {
-//        // have to save the numerator in a variable because of a strange bug
-//        // (times[i] will randomly become -nan otherwise for some images)
-//        numerator = (*xs)(x,y,0,0);
-//        sumsR[images[i](x,y,0,0)] += numerator / times[i];
-//        numerator = (*xs)(x,y,0,1);
-//        sumsG[images[i](x,y,0,1)] += numerator / times[i];
-//        numerator = (*xs)(x,y,0,2);
-//        sumsB[images[i](x,y,0,2)] += numerator / times[i];
-//      }
-//    }
-//  }
-//  for (uint i = 0; i < 255; i++) {
-//    bigI[0][i] = sumsR[i] / cards[0][i];
-//    bigI[1][i] = sumsG[i] / cards[1][i];
-//    bigI[2][i] = sumsB[i] / cards[2][i];
-//  }
-//  // normalize, so I_128 is 1
-//  normBigIs();
-//}
-
 void HDR::estimateBigIs() {
   double sums[3][256] = {0.0};
   for (uint i = 0; i < numImages; i++) {
@@ -248,36 +225,12 @@ void HDR::estimateBigIs() {
   for (uint color = 0; color < 3; color++) {
     for (uint m = 0; m < 255; m++) {
       bigI[color][m] = (1. / cards[color][m]) * sums[color][m];
-      printf("I: %f, card: %u, sum: %f\n", bigI[color][m], cards[color][m], sums[color][m]);
     }
   }
 
+  // normalize, so I_128 is 1
   normBigIs();
 }
-
-//void HDR::estimateBigIs() {
-//  for (uint color = 0; color < 3; color++) {
-//    for (uint m = 0; m < 255; m++) {
-//      m%5==0?((void)printf("c: %u, m: %u\n", color, m)):((void)0);
-//      uint card = 0;
-//      double sum = 0;
-//      for (uint i = 0; i < numImages; i++) {
-//        for (uint x = 0; x < images[i].width(); x++) {
-//          for (uint y = 0; y < images[i].height(); y++) {
-//            if (images[i](x,y,0,color) == m) {
-//              card++;
-//              sum += (1. / times[i]) * (*xs)(x,y,0,color);
-//            }
-//          }
-//        }
-//      }
-//      bigI[color][m] = (1. / card) * sum;
-//      printf("I: %f, card: %u, sum: %f\n", bigI[color][m], card, sum);
-//    }
-//  }
-//
-//  normBigIs();
-//}
 
 uchar HDR::f(double light, uint color) {
   if (light <= bigI[color][0]) {
@@ -395,12 +348,14 @@ CDisplay HDR::drawGraph() {
 
 HDR::HDR() {
   ifstream hdrgen(getHdrgen().c_str());
+  if (!hdrgen) {
+    cout << "FATAL: Could not load specified .hdrgen file." << endl;
+    exit(EXIT_FAILURE);
+  }
   numImages = 0;
   string line;
-  cout << "hdrgen file:" << endl;
   while (getline(hdrgen, line)) {
     numImages++;
-    cout << line << endl;
   }
   hdrgen.close();
   times = new double[numImages];
