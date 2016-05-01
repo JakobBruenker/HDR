@@ -6,11 +6,14 @@
 #include "CDisplay.h"
 
 class Tonemapper {
-//  double* pixels;
+  double* pixels;
+  unsigned int imWidth;
+  unsigned int imHeight;
 
 public:
   CDisplay showImage();
-//  Tonemapper(unsigned int width, unsigned int height, double* pix);
+  Tonemapper(unsigned int width, unsigned int height, double* pix);
+  ~Tonemapper();
 };
 
 #endif /* TONEMAPPER.H */

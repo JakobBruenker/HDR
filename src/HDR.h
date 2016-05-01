@@ -32,9 +32,10 @@ public:
   void estimateXs();
   void drawResults();
   void estimateBigIs();
+  void maxOverexposed();
   void writeEXRFile();
   // buffer is a one-dimensional array with dimensions width*height*3
-  void getLuminances(double*** buffer);
+  void getLuminances(double* buffer);
   unsigned int getWidth();
   unsigned int getHeight();
   CDisplay drawGraph();

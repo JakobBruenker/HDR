@@ -163,6 +163,44 @@ void HDR::estimateXs() {
   }
 }
 
+// If we don't do anything here, those pixels that were overexposed in all
+// images will be black, since the weight will always have been 0. However, if
+// they were overexposed even in the darkest image, we know that their
+// luminance is at least as high as that of the most luminant pixel we have
+// observed.
+void HDR::maxOverexposed() {
+  double maxLum[3] = {0.0};
+  for (uint x = 0; x < images[0].width(); x++) {
+    for (uint y = 0; y < images[0].height(); y++) {
+      for (uint color = 0; color < 3; color++) {
+        if ((*xs)(x,y,0,color) > maxLum[color]) {
+          maxLum[color] = (*xs)(x,y,0,color);
+        }
+      }
+    }
+  }
+  // since we have sorted the images, it suffices to check whether the pixels
+  // are overexposed in the first image. If so, they ought to be overexposed in
+  // all other images as well
+  for (uint x = 0; x < images[0].width(); x++) {
+    for (uint y = 0; y < images[0].height(); y++) {
+      bool overwrite = false;
+      double pixel[3];
+      for (uint color = 0; color < 3; color++) {
+        if (images[0](x,y,0,color) >= 254) {
+          pixel[color] = maxLum[color];
+          overwrite = true;
+        } else {
+          pixel[color] = (*xs)(x,y,0,color);
+        }
+      }
+      if (overwrite) {
+        xs->draw_point(x,y,pixel);
+      }
+    }
+  }
+}
+
 void HDR::estimateBigIs() {
   double sumsR[256] = {0.};
   double sumsG[256] = {0.};
@@ -241,11 +279,11 @@ void HDR::writeEXRFile() {
   delete[] pixels;
 }
 
-void HDR::getLuminances(double*** buffer) {
+void HDR::getLuminances(double* buffer) {
   for (uint x = 0; x < xs->width(); x++) {
     for (uint y = 0; y < xs->height(); y++) {
       for (uint color = 0; color < 3; color++) {
-        buffer[x][y][color] = (*xs)(x,y,0,color);
+        buffer[y*xs->width()*3 + x*3 + color] = (*xs)(x,y,0,color);
       }
     }
   }
