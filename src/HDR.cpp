@@ -74,6 +74,11 @@ void HDR::loadImages() {
 }
 
 void HDR::initCards() {
+  for (uint i = 0; i < 256; i++) {
+    for (uint color = 0; color < 3; color++) {
+      cards[color][i] = 0;
+    }
+  }
   for (uint i = 0; i < numImages; i++) {
     for (uint x = 0; x < images[0].width(); x++) {
       for (uint y = 0; y < images[0].height(); y++) {
@@ -230,28 +235,49 @@ void HDR::maxOverexposed() {
 //}
 
 void HDR::estimateBigIs() {
-  for (uint color = 0; color < 3; color++) {
-    for (uint m = 0; m < 255; m++) {
-      m%5==0?((void)printf("c: %u, m: %u\n", color, m)):((void)0);
-      uint card = 0;
-      double sum = 0;
-      for (uint i = 0; i < numImages; i++) {
-        for (uint x = 0; x < images[i].width(); x++) {
-          for (uint y = 0; y < images[i].height(); y++) {
-            if (images[i](x,y,0,color) == m) {
-              card++;
-              sum += (1. / times[i]) * (*xs)(x,y,0,color);
-            }
-          }
+  double sums[3][256] = {0.0};
+  for (uint i = 0; i < numImages; i++) {
+    for (uint x = 0; x < images[0].width(); x++) {
+      for (uint y = 0; y < images[0].height(); y++) {
+        for (uint color = 0; color < 3; color++) {
+          sums[color][images[i](x,y,0,color)] += (*xs)(x,y,0,color) / times[i];
         }
       }
-      bigI[color][m] = (1. / card) * sum;
-      printf("I: %f, card: %u, sum: %f\n", bigI[color][m], card, sum);
+    }
+  }
+  for (uint color = 0; color < 3; color++) {
+    for (uint m = 0; m < 255; m++) {
+      bigI[color][m] = (1. / cards[color][m]) * sums[color][m];
+      printf("I: %f, card: %u, sum: %f\n", bigI[color][m], cards[color][m], sums[color][m]);
     }
   }
 
   normBigIs();
 }
+
+//void HDR::estimateBigIs() {
+//  for (uint color = 0; color < 3; color++) {
+//    for (uint m = 0; m < 255; m++) {
+//      m%5==0?((void)printf("c: %u, m: %u\n", color, m)):((void)0);
+//      uint card = 0;
+//      double sum = 0;
+//      for (uint i = 0; i < numImages; i++) {
+//        for (uint x = 0; x < images[i].width(); x++) {
+//          for (uint y = 0; y < images[i].height(); y++) {
+//            if (images[i](x,y,0,color) == m) {
+//              card++;
+//              sum += (1. / times[i]) * (*xs)(x,y,0,color);
+//            }
+//          }
+//        }
+//      }
+//      bigI[color][m] = (1. / card) * sum;
+//      printf("I: %f, card: %u, sum: %f\n", bigI[color][m], card, sum);
+//    }
+//  }
+//
+//  normBigIs();
+//}
 
 uchar HDR::f(double light, uint color) {
   if (light <= bigI[color][0]) {
