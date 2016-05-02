@@ -1,1 +1,25 @@
 \section{Documentation for the Program}\label{sec:doc}
+
+To run the program, you need a \texttt{config.cfg} file in the directory you
+are running it from, which contains the relative or absolute path to a
+\texttt{.hdrgen} file that specifies which images should be used. You can then
+run \texttt{make}. (This Makefile probably only works under UNIX-like operating
+systems, because it relies on X11. The source code, however, should work on
+Windows as well.) This will run the program after compiling it if necessary.
+
+The program will then generate an image in the OpenEXR format and save it with
+the same name as the \texttt{.hdrgen} file, replacing the file ending with
+\texttt{.exr}.  Similarly, it will write a file containing the values of the
+response curve in a file with the same name as the \texttt{.hdrgen} file,
+replacing the file ending with \texttt{.txt}. It lists the values for red
+pixels in the first column, the ones for green pixels in the second column, and
+the ones for blue pixels in the third column.
+
+It will also open several windows to show a tonemapped version of the HDR image
+as well as 3 simulated exposures: 0.01 seconds, 0.05 seconds, and 0.33 seconds.
+It will also show the recovered response curve; the required light to reach a
+certain pixel value for a certain color increases towards the right, and the pixel
+value reached increases towards the top. The intensities are on a logarithmic
+scale.
+
+To exit the program, simply close one of the windows it opens.

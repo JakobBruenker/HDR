@@ -2,7 +2,7 @@
 
 The algorithm that has been used was the one found in \cite{rbs99}. In that
 paper, the response function is initially assumed to be linear. This, while
-already producing decent results, is of coruse not perfectly accurate for any
+already producing decent results, is of course not perfectly accurate for any
 real camera. For this reason, \cite{rbs99} use an algorithm that iteratively
 finds a good approximation of the response curve of the camera that has been
 used as well as a high dynamic range image of the scene.
@@ -17,7 +17,7 @@ equation (8) becomes very small for high pixel values, especially because
 images with longer exposure times are weighted more stongly, and those are more
 likely to be overexposed.
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=\textwidth]{wrongweights.png}
   \caption{The image that results when the weights are not correct. For the
@@ -31,11 +31,11 @@ I had multiple test scenes, but the only other serious problems I encountered
 happened in one where the camera was pointed directly at a lightbulb, leading
 to parts of the image being completely overexposed even on the lowest exposure
 setting. The first problem is that the denominator in equation (8) becomes 0 in
-this case (because it was set to 0 due to the previously mentioned issue). The
-numerator is also 0, which means the result is undefined. In subsequent
-iterations, this quickly leads to all values of the response function being
-undefined. This was fixed by setting the estimated luminance to 0 in these
-cases.
+this case (because the weight was set to 0 due to the previously mentioned
+issue). The numerator is also 0, which means the result is undefined. In
+subsequent iterations, this quickly leads to all values of the response
+function being undefined. This was fixed by setting the estimated luminance to
+0 in these cases.
 
 This, however, is obviously not really correct - the pixels were completely
 overexposed, and are now completely black in the final image. This can be fixed
@@ -47,7 +47,7 @@ certain exposure time after creating a high dynamic range image with this
 algorithm, as well as the respective recovered response curves. The iterative
 process was executed five times for these images.
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=\textwidth]{hdr.png}
   \caption{A window scene on the left, with simulated 1/100s exposure time, and
